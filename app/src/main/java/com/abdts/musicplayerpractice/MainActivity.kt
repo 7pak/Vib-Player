@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Accept reading file permission!",
+                        text = "Accept reading media files permission!",
                         color = MaterialTheme.colorScheme.error,
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
                     )
