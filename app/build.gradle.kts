@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -87,7 +88,12 @@ dependencies {
 
     //constraintLayout
     implementation(libs.androidx.constraintlayout)
+
+    //Image processing
     implementation(libs.coil)
+    implementation(libs.glide)
+
+    implementation(libs.androidx.material.icons.extended)
 
 
 }

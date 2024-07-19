@@ -1,6 +1,7 @@
 package com.abdts.musicplayerpractice
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,14 +15,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.abdts.musicplayerpractice.data.service.VibAudioService
 import com.abdts.musicplayerpractice.navigation.AppNavigation
-import com.abdts.musicplayerpractice.ui.SharedViewModel
 import com.abdts.musicplayerpractice.ui.theme.MusicPlayerPracticeTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 class MainActivity : ComponentActivity() {
+    private var isServiceRunning = false
+
     @RequiresApi(Build.VERSION_CODES.P)
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,12 +45,12 @@ class MainActivity : ComponentActivity() {
 
             if (permission.allPermissionsGranted) {
                 val navController = rememberNavController()
-                val sharedViewModel = getViewModel<SharedViewModel>()
                 MusicPlayerPracticeTheme {
                     AppNavigation(
                         navHostController = navController,
-                        sharedViewModel = sharedViewModel
-                    )
+                    ){
+                        starMediaService()
+                    }
                 }
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -60,5 +62,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun starMediaService(){
+        val intent = Intent(this,VibAudioService::class.java)
+        if (!isServiceRunning){
+            startForegroundService(intent)
+        }else{
+            startService(intent)
+        }
+        isServiceRunning = true
     }
 }

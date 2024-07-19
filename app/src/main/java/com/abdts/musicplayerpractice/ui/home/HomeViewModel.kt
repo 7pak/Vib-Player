@@ -1,92 +1,134 @@
 package com.abdts.musicplayerpractice.ui.home
 
-import androidx.compose.runtime.getValue
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abdts.musicplayerpractice.common.Resources
-import com.abdts.musicplayerpractice.domain.use_cases.VibAudioUseCases
+import androidx.lifecycle.viewmodel.compose.saveable
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import com.abdts.musicplayerpractice.common.PlayerEvents
+import com.abdts.musicplayerpractice.common.VibAudioState
+import com.abdts.musicplayerpractice.data.local.model.Audio
+import com.abdts.musicplayerpractice.data.service.VibAudioServiceHandler
+import com.abdts.musicplayerpractice.domain.repository.AudioRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class HomeViewModel(
-    private val vibAudioUseCases: VibAudioUseCases
+    private val audioRepository: AudioRepository,
+    private val vibAudioServiceHandler: VibAudioServiceHandler,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
-    var homeUiState by mutableStateOf(HomeUiState())
-        private set
-
-    fun onEvent(event: HomeEvent) {
-
-        when (event) {
-            HomeEvent.FetchSong -> fetchSong()
-            is HomeEvent.OnSongSelected -> homeUiState =
-                homeUiState.copy(selectedSong = event.selectedSong)
-
-            HomeEvent.PauseSong -> pauseSong()
-            HomeEvent.PlaySong -> playSong()
-            HomeEvent.ResumeSong -> resumeSong()
-            HomeEvent.SkipToNextSong -> skipToNext()
-            HomeEvent.SkipToPreviousSong -> skipToPrevious()
-        }
+    var duration by savedStateHandle.saveable {
+        mutableStateOf(0L)
+    }
+    var progress by savedStateHandle.saveable {
+        mutableStateOf(0f)
+    }
+    var progressString by savedStateHandle.saveable {
+        mutableStateOf("00:00")
+    }
+    var isPlaying by savedStateHandle.saveable {
+        mutableStateOf(false)
+    }
+    var currentSelectedAudio by savedStateHandle.saveable {
+        mutableStateOf(Audio(Uri.EMPTY, 0L, "", "", "", 0, "", Uri.EMPTY))
+    }
+    var audioList by savedStateHandle.saveable {
+        mutableStateOf(listOf<Audio>())
     }
 
-    private fun fetchSong() {
+    private var _uiState: MutableStateFlow<UIState> = MutableStateFlow(UIState.Initial)
+    val uiState: StateFlow<UIState> = _uiState
+
+
+    init {
+        loadAudioData()
+    }
+    init {
         viewModelScope.launch {
-            vibAudioUseCases.getAudios().collectLatest { resource ->
-                when (resource) {
-                    is Resources.Error -> {
-                        homeUiState =
-                            homeUiState.copy(errorMessage = resource.message, loading = false)
-                    }
-
-                    is Resources.Loading -> {
-                        homeUiState =
-                            homeUiState.copy(errorMessage = resource.message, loading = true)
-                    }
-
-                    is Resources.Success -> {
-                        vibAudioUseCases.addMediaItems()
-                        homeUiState = homeUiState.copy(songs = resource.data, loading = false)
+            vibAudioServiceHandler.audioState.collectLatest { mediaState ->
+                when (mediaState) {
+                    is VibAudioState.Buffering -> calculateProgressValue(mediaState.progress)
+                    is VibAudioState.CurrentPlaying -> currentSelectedAudio = audioList[mediaState.mediaItemIndex]
+                    VibAudioState.Initial -> _uiState.value = UIState.Initial
+                    is VibAudioState.Playing -> isPlaying = mediaState.isPlaying
+                    is VibAudioState.Progress -> calculateProgressValue(mediaState.progress)
+                    is VibAudioState.Ready -> {
+                        duration = mediaState.duration
+                        _uiState.value = UIState.Ready
                     }
                 }
             }
         }
     }
 
-    private fun pauseSong() {
-        vibAudioUseCases.pauseAudio()
+    private fun loadAudioData(){
+        viewModelScope.launch {
+            val audios = audioRepository.getAudioList()
+            audioList = audios
+            setMediaItems()
+        }
     }
 
-    private fun playSong() {
-        homeUiState.apply {
-            songs?.indexOf(selectedSong)?.let {
-                vibAudioUseCases.playAudio(it)
+    private fun setMediaItems(){
+        audioList.map {audio ->
+            MediaItem.Builder()
+                .setUri(audio.uri)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setAlbumArtist(audio.artist)
+                        .setDisplayTitle(audio.title)
+                        .setSubtitle(audio.displayName)
+                        .build()
+                )
+                .build()
+        }.also {
+            vibAudioServiceHandler.setMediaItemList(it)
+        }
+    }
+
+    private fun calculateProgressValue(currentProgress: Long) {
+        progress = if (currentProgress > 0) {
+            (currentProgress.toFloat() / duration.toFloat()) * 100f
+        } else {
+            0f
+        }
+        progressString = formatDuration(currentProgress)
+    }
+
+    private fun formatDuration(duration: Long): String {
+        val minute = TimeUnit.MINUTES.convert(duration, TimeUnit.MILLISECONDS)
+        val seconds = (minute) - minute * TimeUnit.SECONDS.convert(1, TimeUnit.MINUTES)
+        return String.format("%02d:%02d", minute, seconds)
+    }
+
+
+    fun onUIEvent(uiEvents: UIEvents) = viewModelScope.launch {
+        when(uiEvents){
+            UIEvents.Backward -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.Backward)
+            UIEvents.Forward -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.Forward)
+            UIEvents.PlayPause -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.PlayPause)
+            UIEvents.SeekToNext -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekToNext)
+            UIEvents.SeekToPrevious -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekToPrevious)
+            is UIEvents.SeekTo -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekTo, seekPosition = (( duration * uiEvents.position) /100f).toLong() )
+            is UIEvents.SelectedAudioChange -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SelectedAudioChange, selectedAudioIndex = uiEvents.index)
+            is UIEvents.UpdateProgress -> {
+                vibAudioServiceHandler.onPlayerEvent(PlayerEvents.UpdateProgress(uiEvents.progress))
+                progress = uiEvents.progress
             }
         }
     }
 
-    private fun resumeSong() {
-        vibAudioUseCases.resumeAudio()
-    }
-
-    private fun skipToNext() {
-        vibAudioUseCases.skipToNextAudio {
-            it?.let {
-                homeUiState = homeUiState.copy(selectedSong = it)
-            }
+    override fun onCleared() {
+        viewModelScope.launch {
+            vibAudioServiceHandler.onPlayerEvent(PlayerEvents.Stop)
         }
+        super.onCleared()
     }
-
-    private fun skipToPrevious() {
-        vibAudioUseCases.skipToPreviousAudio {
-            it?.let {
-                homeUiState = homeUiState.copy(selectedSong = it)
-            }
-        }
-    }
-
-
 }

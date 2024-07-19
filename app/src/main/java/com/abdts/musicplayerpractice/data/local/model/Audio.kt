@@ -1,7 +1,10 @@
 package com.abdts.musicplayerpractice.data.local.model
 
 import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Audio(
     val uri: Uri,
     val id:Long,
@@ -11,4 +14,4 @@ data class Audio(
     val duration:Int,
     val title:String,
     val albumArtUri:Uri
-)
+):Parcelable
