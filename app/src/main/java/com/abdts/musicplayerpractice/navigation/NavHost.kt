@@ -26,7 +26,8 @@ fun AppNavigation(
                     viewModel.onUIEvent(UIEvents.SelectedAudioChange(it))
                     onStarService()
                 },
-                onNext = {viewModel.onUIEvent(UIEvents.SeekToNext)}
+                onNext = {viewModel.onUIEvent(UIEvents.SeekToNext)},
+                onPrevious = {viewModel.onUIEvent(UIEvents.SeekToPrevious)}
             )
         }
     }

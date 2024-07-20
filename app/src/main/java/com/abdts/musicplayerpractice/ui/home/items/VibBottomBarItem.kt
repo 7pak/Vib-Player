@@ -1,7 +1,5 @@
 package com.abdts.musicplayerpractice.ui.home.items
 
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -16,28 +14,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PauseCircleOutline
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircleOutline
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,16 +49,45 @@ import com.abdts.musicplayerpractice.data.local.model.Audio
 import com.abdts.musicplayerpractice.ui.theme.MusicPlayerPracticeTheme
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VibBottomBarItem(
     audio: Audio,
     progress: Float,
     onProgress: (Float) -> Unit,
     isAudioPlaying: Boolean,
+    currentPlaying:Audio,
     onStar: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
+    onPrevious: () -> Unit
 ) {
     val context = LocalContext.current
+
+    var isBottomSheetExpanded by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+
+
+    val sheetState = rememberModalBottomSheetState()
+    if (isBottomSheetExpanded){
+        ModalBottomSheet(
+            onDismissRequest = {isBottomSheetExpanded =false},
+            sheetState = sheetState,
+
+            content = {
+                AudioDetailBottomSheet(
+                    progress = progress,
+                    onProgress = onProgress,
+                    isAudioPlaying = isAudioPlaying,
+                    currentPlayingAudio = currentPlaying,
+                    onStar = onStar,
+                    onNext = onNext, onPrevious = onPrevious
+                )
+            },
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -70,7 +95,9 @@ fun VibBottomBarItem(
             .clip(shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
             .background(Color.Black)
             .padding(top = 5.dp)
-            ,
+            .clickable {
+                isBottomSheetExpanded = true
+            },
         contentAlignment = Alignment.TopCenter
     ) {
         Row(Modifier.fillMaxWidth(.9f), verticalAlignment = Alignment.CenterVertically) {
@@ -123,129 +150,6 @@ fun VibBottomBarItem(
     }
 }
 
-@Composable
-fun BottomBarPlayer(
-    audio: Audio,
-    progress: Float,
-    onProgress: (Float) -> Unit,
-    isAudioPlaying: Boolean,
-    onStar: () -> Unit,
-    onNext: () -> Unit
-) {
-
-    BottomAppBar {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(55.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ArtistInfo(audio = audio, modifier = Modifier.weight(1f))
-                MediaPlayerController(
-                    isAudioPlaying = isAudioPlaying,
-                    onStar = onStar,
-                    onNext = onNext
-                )
-
-                Slider(value = progress, onValueChange = onProgress, valueRange = 0f..100f)
-            }
-        }
-    }
-}
-
-@Composable
-fun MediaPlayerController(
-    isAudioPlaying: Boolean,
-    onStar: () -> Unit,
-    onNext: () -> Unit
-) {
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-            .height(55.dp)
-            .padding(4.dp)
-    ) {
-        PlayerIcon(icon = if (isAudioPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow) {
-
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Icon(
-            imageVector = Icons.Filled.SkipNext,
-            contentDescription = null,
-            modifier = Modifier.clickable {
-                onNext()
-            })
-    }
-}
-
-
-@Composable
-fun ArtistInfo(
-    modifier: Modifier = Modifier,
-    audio: Audio
-) {
-
-    Row(
-        modifier = modifier.padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        PlayerIcon(
-            icon = Icons.Default.Info,
-            borderStroke = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onSurface)
-        ) {}
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Column {
-            Text(
-                text = audio.title,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-                maxLines = 1
-            )
-        }
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Text(
-            text = audio.artist,
-            fontWeight = FontWeight.Normal,
-            style = MaterialTheme.typography.bodySmall,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1
-        )
-    }
-}
-
-@Composable
-fun PlayerIcon(
-    modifier: Modifier = Modifier,
-    icon: ImageVector,
-    borderStroke: BorderStroke? = null,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    color: Color = MaterialTheme.colorScheme.onSurface,
-    onClick: () -> Unit
-) {
-    Surface(
-        shape = CircleShape,
-        border = borderStroke,
-        modifier = modifier
-            .clip(CircleShape)
-            .clickable {
-                onClick()
-            }, contentColor = color, color = backgroundColor
-    ) {
-
-        Box(modifier = Modifier.padding(4.dp), contentAlignment = Alignment.Center) {
-            Icon(imageVector = icon, contentDescription = null)
-        }
-    }
-}
-
 @Preview
 @Composable
 private fun VibBottomBar() {
@@ -253,9 +157,10 @@ private fun VibBottomBar() {
         VibBottomBarItem(
             audio = Audio("".toUri(), 0, "Title1", "little", "", 200454, "this ", "".toUri()),
             progress = 25f,
+            currentPlaying = Audio("".toUri(), 0, "Title1", "little", "", 200454, "this ", "".toUri()),
             onProgress = {},
             isAudioPlaying = true,
-            onStar = { /*TODO*/ }) {
+            onStar = { /*TODO*/ }, onNext = {}) {
 
         }
     }

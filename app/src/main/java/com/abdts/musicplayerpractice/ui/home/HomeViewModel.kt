@@ -1,10 +1,13 @@
 package com.abdts.musicplayerpractice.ui.home
 
 import android.net.Uri
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -18,19 +21,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+@OptIn(SavedStateHandleSaveableApi::class)
 
 class HomeViewModel(
     private val audioRepository: AudioRepository,
     private val vibAudioServiceHandler: VibAudioServiceHandler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    var duration by savedStateHandle.saveable {
-        mutableStateOf(0L)
+    private var duration by savedStateHandle.saveable {
+        mutableLongStateOf(0L)
     }
     var progress by savedStateHandle.saveable {
-        mutableStateOf(0f)
+        mutableFloatStateOf(0f)
     }
-    var progressString by savedStateHandle.saveable {
+    private var progressString by savedStateHandle.saveable {
         mutableStateOf("00:00")
     }
     var isPlaying by savedStateHandle.saveable {
@@ -70,8 +74,12 @@ class HomeViewModel(
 
     private fun loadAudioData(){
         viewModelScope.launch {
-            val audios = audioRepository.getAudioList()
+            val audios = audioRepository.getAudioList().filter { it.duration>0 }
+                .sortedBy {
+                    it.displayName
+                }
             audioList = audios
+
             setMediaItems()
         }
     }

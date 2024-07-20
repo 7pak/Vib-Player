@@ -28,10 +28,6 @@ class VibAudioServiceHandler(
     init {
         exoPlayer.addListener(this)
     }
-    fun addMediaItem(mediaItem: MediaItem){
-        exoPlayer.setMediaItem(mediaItem)
-        exoPlayer.prepare()
-    }
 
     fun setMediaItemList(mediaItems: List<MediaItem>){
         exoPlayer.setMediaItems(mediaItems)
@@ -63,7 +59,7 @@ class VibAudioServiceHandler(
                  exoPlayer.seekTo(
                      (exoPlayer.duration * playerEvent.progress.toLong())
                  )
-                // _audioState.value = VibAudioState.Progress(progress = playerEvent.progress.toLong())
+//                 _audioState.value = VibAudioState.Progress(progress = playerEvent.progress.toLong())
              }
              PlayerEvents.Stop -> stopProgressUpdate()
          }
@@ -75,6 +71,13 @@ class VibAudioServiceHandler(
             ExoPlayer.STATE_BUFFERING -> _audioState.value = VibAudioState.Buffering(progress = exoPlayer.currentPosition)
             ExoPlayer.STATE_READY -> _audioState.value = VibAudioState.Ready(duration = exoPlayer.duration)
 
+            Player.STATE_ENDED -> {
+                TODO()
+            }
+
+            Player.STATE_IDLE -> {
+                TODO()
+            }
         }
         super.onPlaybackStateChanged(playbackState)
     }
