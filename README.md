@@ -1,8 +1,4 @@
 # Vib-Audio Player
-<p align="center">
-  <a href="https://android-arsenal.com/api?level=26"><img alt="API" src="https://img.shields.io/badge/API-26%2B-brightgreen"/></a>
-  <a href="https://github.com/7pak"><img alt="Profile" src="https://github.com/7pak/"/></a> 
-</p>
 
 Music Player is an Android application created for playing with Jetpack Compose framework and ExoPlayer.
 
