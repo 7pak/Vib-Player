@@ -1,7 +1,7 @@
-# Music Player
+# Vib-Audio Player
 <p align="center">
   <a href="https://android-arsenal.com/api?level=26"><img alt="API" src="https://img.shields.io/badge/API-26%2B-brightgreen"/></a>
-  <a href="https://github.com/jslowinski"><img alt="Profile" src="https://jslowinski.github.io/Website/badges/jslowinski.svg"/></a> 
+  <a href="https://github.com/7pak"><img alt="Profile" src="https://github.com/7pak/"/></a> 
 </p>
 
 Music Player is an Android application created for playing with Jetpack Compose framework and ExoPlayer.
@@ -9,7 +9,7 @@ Music Player is an Android application created for playing with Jetpack Compose 
 ## Result
 
 ### Dark/Light Mode and Notification
-| ![list](previews/darkList.png) | ![player](previews/darkPlayer.png) |![list](previews/lightList.png) |![player](previews/lightPlayer.png) | ![notification](previews/notificationPlayer.png) |
+| ![list](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010807.png) | ![player](previews/darkPlayer.png) |![list](previews/lightList.png) |![player](previews/lightPlayer.png) | ![notification](previews/notificationPlayer.png) |
 |----------|:----------:|:--------:|:---------:|:---------:|
 
 ## Tech stack & Open-source libraries
