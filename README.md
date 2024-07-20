@@ -8,8 +8,8 @@ Music Player is an Android application created for playing with Jetpack Compose 
 
 ## Result
 
-### Dark/Light Mode and Notification
-| ![list](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010807.png) | ![player](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010838.png) |![list](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010900.png) |
+### UI and Notification
+| ![list](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010807.png) | ![bottom](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010838.png) |![player](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010900.png) | ![notification](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_014640.png)
 |----------|:----------:|:--------:|:---------:|:---------:|
 
 ## Technologies Used
