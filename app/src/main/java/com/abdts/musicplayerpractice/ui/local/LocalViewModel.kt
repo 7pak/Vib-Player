@@ -1,14 +1,10 @@
-package com.abdts.musicplayerpractice.ui.home
+package com.abdts.musicplayerpractice.ui.local
 
-import android.net.Uri
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
-import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.abdts.musicplayerpractice.common.PlayerEvents
@@ -16,60 +12,33 @@ import com.abdts.musicplayerpractice.common.VibAudioState
 import com.abdts.musicplayerpractice.data.local.model.Audio
 import com.abdts.musicplayerpractice.data.service.VibAudioServiceHandler
 import com.abdts.musicplayerpractice.domain.repository.AudioRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.abdts.musicplayerpractice.ui.UIEvents
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
-@OptIn(SavedStateHandleSaveableApi::class)
 
-class HomeViewModel(
+class LocalViewModel(
     private val audioRepository: AudioRepository,
     private val vibAudioServiceHandler: VibAudioServiceHandler,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private var duration by savedStateHandle.saveable {
-        mutableLongStateOf(0L)
-    }
-    var progress by savedStateHandle.saveable {
-        mutableFloatStateOf(0f)
-    }
-    private var progressString by savedStateHandle.saveable {
-        mutableStateOf("00:00")
-    }
-    var isPlaying by savedStateHandle.saveable {
-        mutableStateOf(false)
-    }
-    var currentSelectedAudio by savedStateHandle.saveable {
-        mutableStateOf(Audio(Uri.EMPTY, 0L, "", "", "", 0, "", Uri.EMPTY))
-    }
-    var audioList by savedStateHandle.saveable {
-        mutableStateOf(listOf<Audio>())
-    }
 
-    private var _uiState: MutableStateFlow<UIState> = MutableStateFlow(UIState.Initial)
-    val uiState: StateFlow<UIState> = _uiState
+
+
+
+    var localState by mutableStateOf(LocalState())
+        private set
+
+    var audioList:List<Audio> = emptyList()
+        private set
 
 
     init {
         loadAudioData()
+        setAudioStates()
     }
-    init {
-        viewModelScope.launch {
-            vibAudioServiceHandler.audioState.collectLatest { mediaState ->
-                when (mediaState) {
-                    is VibAudioState.Buffering -> calculateProgressValue(mediaState.progress)
-                    is VibAudioState.CurrentPlaying -> currentSelectedAudio = audioList[mediaState.mediaItemIndex]
-                    VibAudioState.Initial -> _uiState.value = UIState.Initial
-                    is VibAudioState.Playing -> isPlaying = mediaState.isPlaying
-                    is VibAudioState.Progress -> calculateProgressValue(mediaState.progress)
-                    is VibAudioState.Ready -> {
-                        duration = mediaState.duration
-                        _uiState.value = UIState.Ready
-                    }
-                }
-            }
-        }
+
+    fun updateState(state: LocalState){
+        localState = state.copy()
     }
 
     private fun loadAudioData(){
@@ -81,6 +50,23 @@ class HomeViewModel(
             audioList = audios
 
             setMediaItems()
+        }
+    }
+
+    private fun setAudioStates(){
+        viewModelScope.launch {
+            vibAudioServiceHandler.audioState.collectLatest { mediaState ->
+                when (mediaState) {
+                    is VibAudioState.Buffering -> calculateProgressValue(mediaState.progress)
+                    is VibAudioState.CurrentPlaying -> localState = localState.copy(currentSelectedAudio = audioList[mediaState.mediaItemIndex])
+                    VibAudioState.Initial -> {}
+                    is VibAudioState.Playing -> localState = localState.copy(isPlaying = mediaState.isPlaying)
+                    is VibAudioState.Progress -> calculateProgressValue(mediaState.progress)
+                    is VibAudioState.Ready -> {
+                        localState = localState.copy(duration = mediaState.duration)
+                    }
+                }
+            }
         }
     }
 
@@ -102,12 +88,13 @@ class HomeViewModel(
     }
 
     private fun calculateProgressValue(currentProgress: Long) {
-        progress = if (currentProgress > 0) {
-            (currentProgress.toFloat() / duration.toFloat()) * 100f
+        val progress = if (currentProgress > 0) {
+            (currentProgress.toFloat() / localState.duration.toFloat()) * 100f
         } else {
             0f
         }
-        progressString = formatDuration(currentProgress)
+        localState = localState.copy(progress = progress)
+        localState = localState.copy(progressString = formatDuration(currentProgress))
     }
 
     private fun formatDuration(duration: Long): String {
@@ -124,11 +111,11 @@ class HomeViewModel(
             UIEvents.PlayPause -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.PlayPause)
             UIEvents.SeekToNext -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekToNext)
             UIEvents.SeekToPrevious -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekToPrevious)
-            is UIEvents.SeekTo -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekTo, seekPosition = (( duration * uiEvents.position) /100f).toLong() )
+            is UIEvents.SeekTo -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SeekTo, seekPosition = (( localState.duration * uiEvents.position) /100f).toLong() )
             is UIEvents.SelectedAudioChange -> vibAudioServiceHandler.onPlayerEvent(PlayerEvents.SelectedAudioChange, selectedAudioIndex = uiEvents.index)
             is UIEvents.UpdateProgress -> {
                 vibAudioServiceHandler.onPlayerEvent(PlayerEvents.UpdateProgress(uiEvents.progress))
-                progress = uiEvents.progress
+                localState = localState.copy(progress = uiEvents.progress)
             }
         }
     }

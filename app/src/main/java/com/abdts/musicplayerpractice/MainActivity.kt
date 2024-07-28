@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     onPermissionsGranted = {
                         val navController = rememberNavController()
                         AppNavigation(
-                            navHostController = navController,
+                            navController = navController,
                         ) {
                             starMediaService()
                         }
@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
     }
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
-    fun PermissionHandler(
+    private fun PermissionHandler(
         permissionState: PermissionState,
         onPermissionsGranted: @Composable () -> Unit,
         onPermissionsDenied: @Composable () -> Unit
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun PermissionDeniedUI(
+    private fun PermissionDeniedUI(
         onRetry: () -> Unit,
         onGoToSettings: () -> Unit
     ) {

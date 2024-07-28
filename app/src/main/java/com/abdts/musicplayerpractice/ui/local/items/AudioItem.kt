@@ -1,5 +1,7 @@
-package com.abdts.musicplayerpractice.ui.home.items
+package com.abdts.musicplayerpractice.ui.local.items
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,38 +11,66 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
 import com.abdts.musicplayerpractice.R
 import com.abdts.musicplayerpractice.data.local.model.Audio
 import com.abdts.musicplayerpractice.ui.theme.MusicPlayerPracticeTheme
 import kotlin.math.floor
 
 @Composable
-fun AudioItem(audio: Audio, isPlaying: Boolean, onClick: () -> Unit) {
+fun AudioItem(audio: Audio, isSelected: Boolean, isPlaying: Boolean, onClick: (Boolean) -> Unit) {
+
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onClick() }, verticalAlignment = Alignment.CenterVertically
+            .clickable { onClick(isPlaying) }, verticalAlignment = Alignment.CenterVertically
     ) {
-        if (isPlaying){
+        if (isSelected) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_logo),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
         }
+        Spacer(modifier = Modifier.width(6.dp))
+
+        val painter = rememberAsyncImagePainter(
+            model = ImageRequest.Builder(context)
+                .data(
+                    audio.albumArtUri
+                ).transformations(CircleCropTransformation()).placeholder(R.drawable.ic_music)
+                .build(),
+            placeholder = painterResource(id = R.drawable.ic_music),
+            error = painterResource(id = R.drawable.ic_music),
+        )
+        Image(
+            painter = painter,
+            contentDescription = null,
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+        )
+
         Spacer(modifier = Modifier.width(6.dp))
         Column(
             modifier = Modifier
@@ -54,7 +84,8 @@ fun AudioItem(audio: Audio, isPlaying: Boolean, onClick: () -> Unit) {
                 text = audio.displayName,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                modifier = if (isPlaying && isSelected) Modifier.basicMarquee() else Modifier
             )
 
             Spacer(modifier = Modifier.size(4.dp))
@@ -66,8 +97,10 @@ fun AudioItem(audio: Audio, isPlaying: Boolean, onClick: () -> Unit) {
                 maxLines = 1
             )
         }
-        Text(text = timestampToDuration(audio.duration.toLong()), style = MaterialTheme.typography.labelMedium)
-
+        Text(
+            text = timestampToDuration(audio.duration.toLong()),
+            style = MaterialTheme.typography.labelMedium
+        )
         Spacer(modifier = Modifier.size(8.dp))
     }
 }
@@ -85,7 +118,8 @@ private fun AudioItemPreview() {
     MusicPlayerPracticeTheme {
         AudioItem(
             audio = Audio("".toUri(), 0, "Title1", "little", "", 200454, "this ", "".toUri()),
-            isPlaying = true
+            isSelected = true,
+            isPlaying = false
         ) {
 
         }

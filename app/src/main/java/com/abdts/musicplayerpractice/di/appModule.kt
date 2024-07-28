@@ -3,7 +3,6 @@ package com.abdts.musicplayerpractice.di
 import android.content.Context
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -13,7 +12,7 @@ import com.abdts.musicplayerpractice.data.notification.VibAudioNotificationManag
 import com.abdts.musicplayerpractice.data.repository.AudioRepositoryImpl
 import com.abdts.musicplayerpractice.data.service.VibAudioServiceHandler
 import com.abdts.musicplayerpractice.domain.repository.AudioRepository
-import com.abdts.musicplayerpractice.ui.home.HomeViewModel
+import com.abdts.musicplayerpractice.ui.local.LocalViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
@@ -55,5 +54,5 @@ val appModule = module {
         AudioRepositoryImpl(get())
     }
 
-    viewModelOf(::HomeViewModel)
+    viewModelOf(::LocalViewModel)
 }

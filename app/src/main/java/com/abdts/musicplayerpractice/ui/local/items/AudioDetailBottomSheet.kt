@@ -1,4 +1,4 @@
-package com.abdts.musicplayerpractice.ui.home.items
+package com.abdts.musicplayerpractice.ui.local.items
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
@@ -43,17 +43,14 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.abdts.musicplayerpractice.R
 import com.abdts.musicplayerpractice.data.local.model.Audio
+import com.abdts.musicplayerpractice.ui.local.LocalState
+import com.abdts.musicplayerpractice.ui.UIEvents
 import com.abdts.musicplayerpractice.ui.theme.MusicPlayerPracticeTheme
 
 @Composable
 fun AudioDetailBottomSheet(
-    progress: Float,
-    onProgress: (Float) -> Unit,
-    isAudioPlaying: Boolean,
-    currentPlayingAudio: Audio,
-    onStar: () -> Unit,
-    onNext: () -> Unit,
-    onPrevious: () -> Unit
+   localState: LocalState,
+   onEvent:(UIEvents)->Unit
 ) {
 
     Column(
@@ -67,7 +64,7 @@ fun AudioDetailBottomSheet(
         )
 
         Text(
-            text = currentPlayingAudio.displayName,
+            text = localState.currentSelectedAudio.displayName,
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = Color.Black,
                 fontWeight = FontWeight.Bold
@@ -76,14 +73,14 @@ fun AudioDetailBottomSheet(
             maxLines = 1,
             modifier = Modifier.basicMarquee()
         )
-        PlayingAudio(modifier = Modifier.padding(vertical = 25.dp), progress,currentPlayingAudio)
+        PlayingAudio(modifier = Modifier.padding(vertical = 25.dp), localState.progress,localState.currentSelectedAudio)
         Slider(
-            value = progress,
-            onValueChange = onProgress,
+            value = localState.progress,
+            onValueChange = {onEvent(UIEvents.SeekTo(it))},
             valueRange = 0f..100f,
             modifier = Modifier.padding(12.dp)
         )
-        AdjustMediaController(isAudioPlaying, onStar, onNext, onPrevious)
+        AdjustMediaController(localState.isPlaying, onEvent = onEvent)
         Spacer(modifier = Modifier.height(10.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -150,9 +147,7 @@ fun PlayingAudio(modifier: Modifier = Modifier, progress: Float, audio: Audio) {
 @Composable
 fun AdjustMediaController(
     isAudioPlaying: Boolean,
-    onStar: () -> Unit,
-    onNext: () -> Unit,
-    onPrevious: () -> Unit
+    onEvent: (UIEvents) -> Unit
 ) {
 
     Row(
@@ -160,7 +155,7 @@ fun AdjustMediaController(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        IconButton(onClick = onPrevious, modifier = Modifier.size(25.dp)) {
+        IconButton(onClick = { onEvent(UIEvents.SeekToPrevious) }, modifier = Modifier.size(25.dp)) {
             Icon(
                 imageVector = Icons.Filled.SkipPrevious,
                 contentDescription = null,
@@ -168,7 +163,7 @@ fun AdjustMediaController(
             )
         }
 
-        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(35.dp)) {
+        IconButton(onClick = { onEvent(UIEvents.Backward) }, modifier = Modifier.size(35.dp)) {
             Icon(
                 imageVector = Icons.Filled.FastRewind,
                 contentDescription = null,
@@ -176,7 +171,7 @@ fun AdjustMediaController(
             )
         }
 
-        IconButton(onClick = onStar, modifier = Modifier.size(80.dp)) {
+        IconButton(onClick = { onEvent(UIEvents.PlayPause) }, modifier = Modifier.size(80.dp)) {
             Icon(
                 imageVector = if (isAudioPlaying) Icons.Filled.PauseCircleFilled else Icons.Filled.PlayCircleFilled,
                 contentDescription = null,
@@ -185,7 +180,7 @@ fun AdjustMediaController(
             )
         }
 
-        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(35.dp)) {
+        IconButton(onClick = { onEvent(UIEvents.Forward) }, modifier = Modifier.size(35.dp)) {
             Icon(
                 imageVector = Icons.Filled.FastForward,
                 contentDescription = null,
@@ -193,7 +188,7 @@ fun AdjustMediaController(
             )
         }
 
-        IconButton(onClick = onNext, modifier = Modifier.size(25.dp)) {
+        IconButton(onClick = { onEvent(UIEvents.SeekToNext) }, modifier = Modifier.size(25.dp)) {
             Icon(
                 imageVector = Icons.Filled.SkipNext,
                 contentDescription = null,

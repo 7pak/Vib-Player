@@ -2,11 +2,14 @@ package com.abdts.musicplayerpractice.navigation
 
 import kotlinx.serialization.Serializable
 @Serializable
-sealed class Screens {
+sealed class Screens (val route:String){
 
     @Serializable
-    data object HomeScreen:Screens()
+    data object LocalAudioScreen:Screens("local")
 
     @Serializable
-    data class AudioDetailScreen(val data:String?):Screens()
+    data object RemoteAudioScreen:Screens("remote")
+
+    @Serializable
+    data object SettingAudioScreen:Screens("setting")
 }
