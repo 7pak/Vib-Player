@@ -5,7 +5,8 @@ Music Player is an Android application created for playing with Jetpack Compose 
 ## Result
 
 ### UI and Notification
-| ![list](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010807.png) | ![bottom](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010838.png) |![player](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_010900.png) | ![notification](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240721_014640.png)
+| ![list](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240729_234206.png) | ![bottom](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240729_234248.png) |![setting](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240729_234308.png) | ![listonline](app/src/main/java/com/abdts/musicplayerpractice/previews/Screenshot_20240729_234414.png)| 
+![listonline](app/src/main/java/com/abdts/musicplayerpractice/previews/Notifictaion_song_running.jpg)
 |----------|:----------:|:--------:|:---------:|:---------:|
 
 ## Technologies Used
@@ -42,4 +43,10 @@ This audio player leverages a range of modern technologies to deliver a robust a
 - **Media Style Notifications**: Provides notifications that offer controls for media playback directly from the notification shade.
 - **MediaSessionService Integration**: Uses a MediaSessionService to manage and expose the current media session for consistent control and interaction.
 - **Playback Control Actions**: Includes functionalities for play/pause, skipping to the next/previous track, seeking forward/backward, expanding the bottom sheet to reveal additional options, and stopping playback.
+
+## Mock implementation
+- **Setting screen.
+- **Remote Screen (online) data.
+
+
 
