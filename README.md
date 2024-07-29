@@ -1,6 +1,6 @@
 # Vib-Audio Player
 
-Music Player is an Android application created for playing with Jetpack Compose framework and ExoPlayer.
+Audio Player created for playing with Jetpack Compose framework and ExoPlayer.
 
 ## Result
 
