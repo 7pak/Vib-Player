@@ -1,5 +1,6 @@
 package com.abdts.musicplayerpractice.navigation
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,13 +71,24 @@ fun AppNavigation(
     }
 
 
+    val targetScaffoldColor by animateColorAsState(
+        if (currentBackStackEntry?.destination?.route == Screens.RemoteAudioScreen.route) LightBlack else Color.White,
+        label = "scaffold"
+    )
+
+    val targetNavBarColor by animateColorAsState(
+        if (currentBackStackEntry?.destination?.route == Screens.LocalAudioScreen.route) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            Color.Black.copy(alpha = 0.2f)
+        }, label = "nav_Bar"
+    )
+
     Scaffold(
-        containerColor = if (currentBackStackEntry?.destination?.route == Screens.RemoteAudioScreen.route)  LightBlack else Color.White,
+        containerColor = targetScaffoldColor,
         bottomBar = {
             NavigationBar(
-                containerColor = if (currentBackStackEntry?.destination?.route == Screens.LocalAudioScreen.route) MaterialTheme.colorScheme.primary else Color.Black.copy(
-                    0.2f
-                ),
+                containerColor = targetNavBarColor,
                 modifier = Modifier
                     .padding(10.dp)
                     .height(65.dp)
