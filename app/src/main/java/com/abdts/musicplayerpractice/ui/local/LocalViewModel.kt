@@ -43,7 +43,7 @@ class LocalViewModel(
 
     private fun loadAudioData(){
         viewModelScope.launch {
-            val audios = audioRepository.getAudioList().filter { it.duration>0 }
+            val audios = audioRepository.getLocalAudioList().filter { it.duration>0 }
                 .sortedBy {
                     it.displayName
                 }

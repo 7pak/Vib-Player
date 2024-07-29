@@ -3,7 +3,9 @@ package com.abdts.musicplayerpractice.data.notification
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -12,6 +14,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.ui.PlayerNotificationManager
+import com.abdts.musicplayerpractice.MainActivity
 import com.abdts.musicplayerpractice.R
 import com.abdts.musicplayerpractice.common.Constants
 
@@ -20,7 +23,7 @@ class VibAudioNotificationManager(
     private val exoPlayer: ExoPlayer
 ) {
 
-    val notificationManager = NotificationManagerCompat.from(context)
+    private val notificationManager = NotificationManagerCompat.from(context)
 
     init {
         createNotificationChannel()
@@ -45,6 +48,13 @@ class VibAudioNotificationManager(
 
     @OptIn(UnstableApi::class)
     private fun buildNotification(mediaSession: MediaSession) {
+        val notificationIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         PlayerNotificationManager.Builder(
             context,
             Constants.NOTIFICATION_ID,
@@ -52,10 +62,11 @@ class VibAudioNotificationManager(
         ).setMediaDescriptionAdapter(
             VibAudioNotificationAdapter(
                 context = context,
-                pendingIntent = mediaSession.sessionActivity
+                pendingIntent = pendingIntent
             )
         )
-            .setSmallIconResourceId(R.drawable.ic_logo)
+            .setStopActionIconResourceId(R.drawable.ic_launcher_foreground)
+
             .build().also {
                 it.setMediaSessionToken(mediaSession.sessionCompatToken)
                 it.setUseFastForwardActionInCompactView(true)

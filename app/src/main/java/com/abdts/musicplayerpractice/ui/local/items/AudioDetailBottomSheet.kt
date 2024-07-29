@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
@@ -43,8 +43,8 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.abdts.musicplayerpractice.R
 import com.abdts.musicplayerpractice.data.local.model.Audio
-import com.abdts.musicplayerpractice.ui.local.LocalState
 import com.abdts.musicplayerpractice.ui.UIEvents
+import com.abdts.musicplayerpractice.ui.local.LocalState
 import com.abdts.musicplayerpractice.ui.theme.MusicPlayerPracticeTheme
 
 @Composable
@@ -55,7 +55,7 @@ fun AudioDetailBottomSheet(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-            .fillMaxSize()
+            .wrapContentSize()
             .padding(10.dp)
     ) {
         Text(

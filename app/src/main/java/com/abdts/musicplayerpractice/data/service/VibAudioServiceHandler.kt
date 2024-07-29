@@ -34,6 +34,7 @@ class VibAudioServiceHandler(
         exoPlayer.prepare()
     }
 
+
     suspend fun onPlayerEvent(playerEvent: PlayerEvents,selectedAudioIndex:Int = -1,seekPosition:Long = 0){
          when(playerEvent){
              PlayerEvents.Backward -> exoPlayer.seekBack()
@@ -72,11 +73,11 @@ class VibAudioServiceHandler(
             ExoPlayer.STATE_READY -> _audioState.value = VibAudioState.Ready(duration = exoPlayer.duration)
 
             Player.STATE_ENDED -> {
-                TODO()
+                // TODO:
             }
 
             Player.STATE_IDLE -> {
-                TODO()
+                // TODO:  
             }
         }
         super.onPlaybackStateChanged(playbackState)

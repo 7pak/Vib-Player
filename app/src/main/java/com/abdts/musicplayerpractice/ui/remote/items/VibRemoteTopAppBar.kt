@@ -1,4 +1,4 @@
-package com.abdts.musicplayerpractice.ui.local.items
+package com.abdts.musicplayerpractice.ui.remote.items
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,23 +32,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.abdts.musicplayerpractice.data.local.model.Audio
 import com.abdts.musicplayerpractice.navigation.Screens
-import com.abdts.musicplayerpractice.ui.local.LocalState
-import com.abdts.musicplayerpractice.ui.theme.MusicPlayerPracticeTheme
-
+import com.abdts.musicplayerpractice.ui.local.items.AudioItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VibTopAppBar(
+fun VibRemoteTopAppBar(
     audios: List<Audio>,
-    navController: NavHostController,
-    localState: LocalState,
-    onItemClicked: (Int, LocalState) -> Unit,
+    navController:NavHostController,
+    onItemClicked: () -> Unit,
     ) {
 
     var searchText by remember {
@@ -67,7 +62,7 @@ fun VibTopAppBar(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp))
-            .background(MaterialTheme.colorScheme.primary),
+            .background(Color.Black.copy(0.3f)).padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -93,7 +88,8 @@ fun VibTopAppBar(
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = null,
-                    tint = Color.White
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }
@@ -152,30 +148,12 @@ fun VibTopAppBar(
                 }
                 itemsIndexed(searchList) {index,audio->
                     AudioItem(audio = audio, isSelected = false, isPlaying = false) {
-                        onItemClicked(
-                            audios.indexOfFirst {
-                                it.id==audio.id
-                            },
-                            localState.copy(
-                                currentSelectedAudio = audio,
-                                isPlaying = !localState.isPlaying
-                            )
-                        )
+                        onItemClicked()
                         active = false
                         searchText = ""
                     }
                 }
-
             }
         }
-    }
-}
-
-
-@Preview
-@Composable
-private fun HomeAppBarPreview() {
-    MusicPlayerPracticeTheme {
-        VibTopAppBar(emptyList(), localState = LocalState(), navController = rememberNavController(), onItemClicked = { _, _->})
     }
 }

@@ -129,6 +129,13 @@ class MainActivity : ComponentActivity() {
         }
         isServiceRunning = true
     }
+
+
+    override fun onDestroy() {
+        val intent = Intent(this, VibAudioService::class.java)
+        stopService(intent)
+        super.onDestroy()
+    }
 }
 
 

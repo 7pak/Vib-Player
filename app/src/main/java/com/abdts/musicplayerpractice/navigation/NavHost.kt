@@ -35,6 +35,7 @@ import com.abdts.musicplayerpractice.ui.local.LocalAudioScreen
 import com.abdts.musicplayerpractice.ui.local.LocalViewModel
 import com.abdts.musicplayerpractice.ui.remote.RemoteAudioScreen
 import com.abdts.musicplayerpractice.ui.setting.SettingsScreen
+import com.abdts.musicplayerpractice.ui.theme.LightBlack
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -64,15 +65,18 @@ fun AppNavigation(
         selectedItemIndex = when (currentBackStackEntry?.destination?.route) {
             Screens.LocalAudioScreen.route -> 0
             Screens.RemoteAudioScreen.route -> 1
-            else -> 0
+            else -> selectedItemIndex
         }
     }
 
 
     Scaffold(
+        containerColor = if (currentBackStackEntry?.destination?.route == Screens.RemoteAudioScreen.route)  LightBlack else Color.White,
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = if (currentBackStackEntry?.destination?.route == Screens.LocalAudioScreen.route) MaterialTheme.colorScheme.primary else Color.Black.copy(
+                    0.2f
+                ),
                 modifier = Modifier
                     .padding(10.dp)
                     .height(65.dp)
@@ -83,7 +87,7 @@ fun AppNavigation(
                         colors = NavigationBarItemColors(
                             selectedIconColor = Color.White,
                             selectedTextColor = Color.White,
-                            selectedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            selectedIndicatorColor = Color.Transparent,
                             unselectedIconColor = Color.Black,
                             unselectedTextColor = Color.Black,
                             disabledIconColor = Color.Black,
@@ -140,7 +144,7 @@ fun AppNavigation(
                 )
             }
             composable(Screens.RemoteAudioScreen.route) {
-                RemoteAudioScreen()
+                RemoteAudioScreen(navController)
             }
             composable(Screens.SettingAudioScreen.route) {
                 SettingsScreen()

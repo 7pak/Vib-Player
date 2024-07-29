@@ -7,7 +7,11 @@ import com.abdts.musicplayerpractice.domain.repository.AudioRepository
 class AudioRepositoryImpl(
     private val contentResolver : ContentResolverHelper
 ):AudioRepository {
-    override suspend fun getAudioList(): List<Audio> {
+    override suspend fun getLocalAudioList(): List<Audio> {
         return contentResolver.getAudioList()
+    }
+
+    override suspend fun getRemoteAudioList(): List<Audio> {
+        TODO("Not yet implemented")
     }
 }
