@@ -44,7 +44,11 @@ This audio player leverages a range of modern technologies to deliver a robust a
 - **MediaSessionService Integration**: Uses a MediaSessionService to manage and expose the current media session for consistent control and interaction.
 - **Playback Control Actions**: Includes functionalities for play/pause, skipping to the next/previous track, seeking forward/backward, expanding the bottom sheet to reveal additional options, and stopping playback.
 
+
+
+
 ## Mock implementation
+
 - **Setting screen.
 - **Remote Screen (online) data.
 
