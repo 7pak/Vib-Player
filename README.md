@@ -49,8 +49,8 @@ This audio player leverages a range of modern technologies to deliver a robust a
 
 ## Mock implementation
 
-- **Setting screen.
-- **Remote Screen (online) data.
+- Setting screen.
+- Remote Screen data.
 
 
 
